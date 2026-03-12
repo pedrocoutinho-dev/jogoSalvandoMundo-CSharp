@@ -55,4 +55,12 @@ public class DropFase : MonoBehaviour
                 item.transform.localPosition = Vector3.zero; // Centraliza o item no local
                 
                 itensColocados++;
-                avisoErro.SetActive(false); // Garante que o erro suma
+                avisoErro.SetActive(false); // Garante que o erro suma se ele acertar agora
+                return; // Sai do método pois já achou o lugar certo
+            }
+        }
+
+        // Se o loop terminar e não entrar no 'if' acima, significa que o local é errado
+        avisoErro.SetActive(true); 
+    }
+}
