@@ -5,57 +5,54 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 
+// Classe simples para identificar o objeto. 
+// O 'id' vai servir como uma "chave" para saber qual lixo é qual.
 public class Item : MonoBehaviour
 {
-    public int id; // Adicione o campo id � classe Item
+    public int id; 
 }
 
-
-    public class DropFase : MonoBehaviour
+// Classe que gerencia a lógica de "Drop" (soltar) e progresso da fase.
+public class DropFase : MonoBehaviour
 {
+    [Header("Configurações dos Itens")]
+    public GameObject[] itens; // Lista de objetos que podem ser arrastados
+    public Transform[] locaisCorretos; // Os pontos de destino (ex: as lixeiras)
+    
+    [Header("Interface e Progresso")]
+    public GameObject avisoErro; // Painel ou texto que aparece quando erra o local
+    public int itensColocados = 0; // Contador para saber quantos acertos o jogador já fez
+    public int totalItens = 3; // Meta de acertos para vencer a fase
 
-    public GameObject[] itens; // Array para armazenar os objetos dos itens
-    public Transform[] locaisCorretos; // Array para armazenar os locais corretos para cada item
-    public GameObject avisoErro; // Objeto do aviso de erro (pode ser um texto na tela)
-    public int itensColocados = 0; // Contador de itens colocados corretamente
-    public int totalItens = 3; // N�mero total de itens
-
-    // Start is called before the first frame update
     void Start()
     {
-        
+        // No início, garantimos que o aviso de erro esteja escondido
+        if(avisoErro != null) avisoErro.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Verifica se todos os itens foram colocados corretamente
+        // Verificação constante: se o contador atingiu o total, o jogador venceu
         if (itensColocados == totalItens)
         {
-            // Passa para a pr�xima fase
-            // Exemplo: Carrega a pr�xima cena
+            Debug.Log("Fase Concluída!");
+            // Aqui podemos chamar SceneManager.LoadScene para ir para o próximo nível
         }
     }
 
-
+    // Método principal que será chamado quando o item for solto em uma área de drop
     public void VerificarItem(GameObject item)
     {
-        // Encontra o local correto para o item
+        // Percorremos o array de locais corretos para validar a jogada
         for (int i = 0; i < locaisCorretos.Length; i++)
         {
+            // Verificamos se o local está vazio (childCount == 0) 
+            // e se o ID do item bate com o índice do local correto
             if (locaisCorretos[i].childCount == 0 && item.GetComponent<Item>().id == i)
             {
-                // Item est� no local correto
+                // Sucesso: O item vira "filho" do local correto para ficar encaixado
                 item.transform.SetParent(locaisCorretos[i]);
+                item.transform.localPosition = Vector3.zero; // Centraliza o item no local
+                
                 itensColocados++;
-                avisoErro.SetActive(false); // Desativa o aviso de erro
-                return;
-            }
-        }
-
-        // Item est� no local errado
-        avisoErro.SetActive(true); // Ativa o aviso de erro
-
-    }
-
-}
+                avisoErro.SetActive(false); // Garante que o erro suma
