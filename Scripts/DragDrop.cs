@@ -54,3 +54,6 @@ public class DragDrop : MonoBehaviour, IPointerDownHandler, IBeginDragHandler, I
     {
         // Atualiza a posição do objeto com base no movimento do mouse (delta).
         // Dividimos pelo 'scaleFactor' para que a velocidade do arraste seja a mesma em qualquer resolução de tela.
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+    }
+}
