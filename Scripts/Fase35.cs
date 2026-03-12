@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-
+// Enums para categorizar os tipos de lixo e lixeiras. 
+// Isso evita o uso de "Magic Strings" (comparar textos manualmente), o que reduz erros de digitação.
 public enum TypeLixeira
 {
     Papel,
@@ -23,51 +24,60 @@ public enum TypeLixo
     Vidro
 }
 
+// Script responsável pela lógica de depósito na fase 3.5.
 public class Fase35 : MonoBehaviour, IDropHandler
 {
-    // Define o tipo da lixeira
+    // Define qual o tipo de lixo que esta lixeira específica aceita.
     public TypeLixo typeLixeira;
 
-    // Verifica se o lixo correto foi colocado na lixeira
+    // Flag para controle de validação do último item solto.
     public bool lixoCorreto = false;
 
-    public static int itensColocados = 0; // Contador de itens colocados corretamente
-    public static int totalItens = 10; // Total de itens para serem colocados
+    // Variáveis Estáticas para controle global da fase.
+    // Como são estáticas, todas as instâncias das lixeiras olham para o mesmo contador.
+    public static int itensColocados = 0; 
+    public static int totalItens = 10; // Meta maior para a fase final.
 
+    // Método disparado pela Unity ao soltar um objeto de UI sobre esta lixeira.
     public void OnDrop(PointerEventData eventData)
     {
         if (eventData != null)
         {
+            // Recupera o objeto que foi arrastado.
             GameObject lixo = eventData.pointerDrag.gameObject;
+            
+            // Acessa o script de controle de arraste do objeto para checar o seu tipo.
             DragDrop dragDrop = lixo.GetComponent<DragDrop>();
 
-            // Verifica se o tipo do lixo corresponde ao tipo da lixeira
+            // COMPARAÇÃO DE TIPOS: Verificamos se o item solto é do mesmo tipo da lixeira.
             if (dragDrop.typeLixo == typeLixeira)
             {
-                // Se o lixo estiver correto, marca como colocado
+                // Sucesso: Incrementa o contador de progresso.
                 lixoCorreto = true;
                 itensColocados++;
                 Debug.Log("Lixo correto! Itens colocados: " + itensColocados);
 
-                // Verifica se todos os lixos foram colocados corretamente
+                // Verificação de Vitória: Checa se o jogador atingiu a meta da fase.
                 if (itensColocados == totalItens)
                 {
-                    // Se todos os lixos foram colocados, o jogador ganhou
-                    Debug.Log("Parab�ns! Voc� venceu!");
-                    // Carregue a pr�xima fase
+                    Debug.Log("Parabéns! Você venceu a Fase Final!");
+                    // Reseta o contador estático para não bugar ao reiniciar o jogo ou voltar o menu.
+                    itensColocados = 0; 
                     SceneManager.LoadScene("Fim");
                 }
             }
             else
             {
-                // Se o lixo estiver errado, avisa ao jogador
+                // Erro: O jogador falhou na separação.
                 Debug.Log("Lixo errado!");
-                lixoCorreto = false; // Limpa a flag de lixo correto
+                lixoCorreto = false;
+                
+                // Reseta o contador para a próxima tentativa do jogador.
+                itensColocados = 0; 
                 SceneManager.LoadScene("CenaPerdeu 2");
-
             }
 
-            // Reposiciona o lixo na posi��o original
+            // SNAP LOGIC: "Encaixa" visualmente o lixo na posição exata da lixeira após o drop.
             lixo.GetComponent<RectTransform>().anchoredPosition = GetComponent<RectTransform>().anchoredPosition;
         }
     }
